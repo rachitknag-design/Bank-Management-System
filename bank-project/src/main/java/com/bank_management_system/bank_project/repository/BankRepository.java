@@ -23,5 +23,8 @@ public interface BankRepository extends JpaRepository<Bank, Integer> {
 	public Optional<Bank> findByIdWithAddress(@Param("bankId") Integer bankId);
 	
 	public Optional<Bank> findByIfsc(String ifsc);
+	
+	@Query("SELECT b FROM Bank b WHERE b.address.addressId = :addressId")
+	public Optional<Bank> findByAddressId(@Param("addressId") Integer addressId);
 
 }

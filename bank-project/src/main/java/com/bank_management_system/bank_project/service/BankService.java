@@ -72,6 +72,16 @@ public class BankService {
 	}
 
 
+	public Bank getBankByAddressId(Integer addressId) {
+		if(addressId == null) {
+			throw new InvalidDataException("AddressId is mandatory to fetch Bank by addressId.");
+		}
+		
+		return bankRepository.findByAddressId(addressId)
+				.orElseThrow(()->new ResourceNotFoundException("Bank record with addressId "+addressId+" doesn't exist."));
+	}
+
+
 //	public Bank updateBankRecord(Bank bank) {
 //		
 //		if(bank.getBankId()==null) {

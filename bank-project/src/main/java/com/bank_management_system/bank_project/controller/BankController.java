@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bank_management_system.bank_project.dto.ResponseStructure;
@@ -105,4 +103,17 @@ public class BankController {
 		return new ResponseEntity<ResponseStructure<Bank>>(res, HttpStatus.OK);
 	}
 	
+	
+	//8. Get Bank By Address Id
+	@GetMapping("/address/{addressId}")
+	public ResponseEntity<ResponseStructure<Bank>> getBankByAddressId(@PathVariable Integer addressId) {
+		Bank fetchedBank = bankService.getBankByAddressId(addressId);
+		
+		ResponseStructure<Bank> res = new ResponseStructure<Bank>();
+		res.setData(fetchedBank);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Bank record fetched using addressId: "+addressId);
+		
+		return new ResponseEntity<ResponseStructure<Bank>>(res, HttpStatus.OK);
+	}
 }
