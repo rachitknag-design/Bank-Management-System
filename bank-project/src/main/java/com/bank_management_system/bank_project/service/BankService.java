@@ -82,6 +82,25 @@ public class BankService {
 	}
 
 
+	public List<Bank> getBankByCity(String city) {
+		List<Bank> fetchedBanksList = bankRepository.findByAddressWithCity(city);
+		
+		if(fetchedBanksList.isEmpty()) {
+			throw new ResourceNotFoundException("No Bank found in this city.");
+		}
+		
+		return fetchedBanksList;
+	}
+
+
+	public Bank getBankByContactNo(String contactNo) {
+		Bank fetchedBank = bankRepository.findByContactNo(contactNo)
+				.orElseThrow(()->new ResourceNotFoundException("No Bank Record found with contact No "+contactNo));
+		
+		return fetchedBank;		
+	}
+
+
 //	public Bank updateBankRecord(Bank bank) {
 //		
 //		if(bank.getBankId()==null) {

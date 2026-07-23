@@ -116,4 +116,32 @@ public class BankController {
 		
 		return new ResponseEntity<ResponseStructure<Bank>>(res, HttpStatus.OK);
 	}
+	
+	//9. Get Bank By Address
+	
+	//10. Get Bank By City
+	@GetMapping("/city/{city}")
+	public ResponseEntity<ResponseStructure<List<Bank>>> getBankByCity(@PathVariable String city) {
+		List<Bank> fetchedBanksList = bankService.getBankByCity(city);
+		
+		ResponseStructure<List<Bank>> res = new ResponseStructure<List<Bank>>();
+		res.setData(fetchedBanksList);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Bank records fetched in city "+city);
+		
+		return new ResponseEntity<ResponseStructure<List<Bank>>>(res, HttpStatus.OK);
+	}
+	
+	//11. Get Bank By Contact Number
+	@GetMapping("/contact/{contactNo}")
+	public ResponseEntity<ResponseStructure<Bank>> getBankByContactNo(@PathVariable String contactNo) {
+		Bank fetchedBank = bankService.getBankByContactNo(contactNo);
+		
+		ResponseStructure<Bank> res = new ResponseStructure<Bank>();
+		res.setData(fetchedBank);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Bank with contact Number "+contactNo+" fetched successfully.");
+		
+		return new ResponseEntity<ResponseStructure<Bank>>(res, HttpStatus.OK);
+	}
 }
