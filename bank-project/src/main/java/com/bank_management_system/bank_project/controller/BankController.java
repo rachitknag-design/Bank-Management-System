@@ -18,7 +18,7 @@ import com.bank_management_system.bank_project.entity.Bank;
 import com.bank_management_system.bank_project.service.BankService;
 
 @RestController
-@RequestMapping("/api/bank")
+@RequestMapping("/bank")
 public class BankController {
 
 	@Autowired

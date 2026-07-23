@@ -1,5 +1,7 @@
 package com.bank_management_system.bank_project.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,5 +37,32 @@ public class AddressService {
 		
 		return fetchedAddress;
 	}
+
+	public List<Address> getAddressByCity(String city) {
+		List<Address> fetchedAddresses = addressRepository.findByCity(city);
+		
+		if(fetchedAddresses.isEmpty()) {
+			throw new ResourceNotFoundException("No Address found in the city "+city);
+		}
+		
+		return fetchedAddresses;
+	}
+
+	public List<Address> getAddressByCityAndStreet(String city, String street) {
+		
+		if(city==null ||city.isBlank() || street==null || street.isBlank()) {
+			throw new InvalidDataException("Both city and street required to find the address.");
+		}
+		
+		List<Address> fetchedAddress = addressRepository.findByCityIgnoreCaseAndStreetIgnoreCase(city,street);
+		
+		if(fetchedAddress.isEmpty()) {
+			throw new ResourceNotFoundException("No Address found at city "+city+" and street "+street);
+		}
+		
+		return fetchedAddress;
+	}
+
+	
 
 }
