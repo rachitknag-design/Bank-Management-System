@@ -38,7 +38,7 @@ public class AccountService {
 			throw new InvalidDataException("AccountType is required. Allowed types: SAVINGS, CURRENT, FIXED_DEPOSIT.");
 		}
 		
-		//check balance for null and minimum balance
+		//check balance for null and minimum Balance
 		if(account.getBalance() == null) {
             throw new InvalidDataException("Account balance is required.");
         }

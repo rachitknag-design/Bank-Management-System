@@ -55,7 +55,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 //		res.setMessage("Invalid JSON input: "+detailMessage);
 //		
 //		return new ResponseEntity<ErrorResponse>(res, HttpStatus.BAD_REQUEST);
-//	}
+//	}/
 	
 	@ExceptionHandler(InsufficientInitialBalanceException.class)
 	public ResponseEntity<ErrorResponse> handleInsufficientInitialBalanceException(InsufficientInitialBalanceException e) {
