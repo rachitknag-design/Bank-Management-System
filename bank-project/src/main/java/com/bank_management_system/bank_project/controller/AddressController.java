@@ -25,14 +25,7 @@ public class AddressController {
 	//1. Get Address By Id
 	@GetMapping("/id/{addressId}")
 	public ResponseEntity<ResponseStructure<Address>> getAddressById(@PathVariable Integer addressId) {
-		Address fetchedAddress = addressService.getAddressById(addressId);
-		
-		ResponseStructure<Address> res = new ResponseStructure<Address>();
-		res.setData(fetchedAddress);
-		res.setStatusCode(HttpStatus.OK.value());
-		res.setMessage("Address with Id "+addressId+" successfully fetched.");
-		
-		return new ResponseEntity<ResponseStructure<Address>>(res, HttpStatus.OK);
+		return addressService.getAddressById(addressId);
 	}
 	
 	//2. Update Address
@@ -40,40 +33,18 @@ public class AddressController {
 	//3. Get Address By Bank
 	@GetMapping("/bank/{bankId}")
 	public ResponseEntity<ResponseStructure<Address>> getAddressByBank(@PathVariable Integer bankId) {
-		Address fetchedAddress = addressService.getAddressByBank(bankId);
-		
-		ResponseStructure<Address> res = new ResponseStructure<Address>();
-		res.setData(fetchedAddress);
-		res.setStatusCode(HttpStatus.OK.value());
-		res.setMessage("Address record fetched with Bank Id "+bankId);
-		
-		return new ResponseEntity<ResponseStructure<Address>>(res, HttpStatus.OK);
+		return addressService.getAddressByBank(bankId);
 	}
 	
 	//4. Get Address By City
 	@GetMapping("/city/{city}")
 	public ResponseEntity<ResponseStructure<List<Address>>> getAddressByCity(@PathVariable String city) {
-		List<Address> fetchedAddresses = addressService.getAddressByCity(city);
-		
-		ResponseStructure<List<Address>> res = new ResponseStructure<List<Address>>();
-		res.setData(fetchedAddresses);
-		res.setStatusCode(HttpStatus.OK.value());
-		res.setMessage("All Addresses fetched with city "+city);
-		
-		return new ResponseEntity<ResponseStructure<List<Address>>>(res, HttpStatus.OK);
-		
+		return addressService.getAddressByCity(city);
 	}
 	
 	//5. Get Address By City and Street
 	@GetMapping("/search")
 	public ResponseEntity<ResponseStructure<List<Address>>> getAddressByCityAndStreet(@RequestParam String city, @RequestParam String street) {
-		List<Address> fetchedAddress = addressService.getAddressByCityAndStreet(city, street);
-		
-		ResponseStructure<List<Address>> res = new ResponseStructure<List<Address>>();
-		res.setData(fetchedAddress);
-		res.setStatusCode(HttpStatus.OK.value());
-		res.setMessage("All Address with city "+city+" and state "+street+" fetched successfully.");
-		
-		return new ResponseEntity<ResponseStructure<List<Address>>>(res, HttpStatus.OK);
+		return addressService.getAddressByCityAndStreet(city, street);
 	}
 }
