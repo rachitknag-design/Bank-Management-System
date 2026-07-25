@@ -1,12 +1,18 @@
 package com.bank_management_system.bank_project.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.annotation.DeleteExchange;
 
 import com.bank_management_system.bank_project.dto.ResponseStructure;
 import com.bank_management_system.bank_project.entity.Account;
@@ -22,13 +28,24 @@ public class AccountController {
 	//1. Create Account
 	@PostMapping("/save")
 	public ResponseEntity<ResponseStructure<Account>> createAccount(@RequestBody Account account) {
-		Account createdAccount = accountService.createAccount(account);
-		
-		ResponseStructure<Account> res = new ResponseStructure<Account>();
-		res.setData(createdAccount);
-		res.setStatusCode(HttpStatus.CREATED.value());
-		res.setMessage("New Account Created Successfully.");
-		
-		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.CREATED);
+		return accountService.createAccount(account);
+	}
+	
+	//2. Get All Accounts
+	@GetMapping("/all")
+	public ResponseEntity<ResponseStructure<List<Account>>> getAllAccounts() {
+		return accountService.getAllAccounts();
+	}
+	
+	//3. Get Account By Id
+	@GetMapping("/{accountId}")
+	public ResponseEntity<ResponseStructure<Account>> getAccountById(@PathVariable Integer accountId) {
+		return accountService.getAccountById(accountId);
+	}
+	
+	//4. Delete Account
+	@DeleteMapping("/{accountId}")
+	public ResponseEntity<ResponseStructure<Account>> deleteAccountById(@PathVariable Integer accountId) {
+		return accountService.deleteAccountById(accountId);
 	}
 }

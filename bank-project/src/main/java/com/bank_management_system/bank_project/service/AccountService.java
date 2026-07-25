@@ -1,10 +1,14 @@
 package com.bank_management_system.bank_project.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.bank_management_system.bank_project.dto.ResponseStructure;
 import com.bank_management_system.bank_project.entity.Account;
 import com.bank_management_system.bank_project.entity.AccountType;
 import com.bank_management_system.bank_project.entity.Bank;
@@ -25,7 +29,7 @@ public class AccountService {
 	private BankRepository bankRepository;
 	private BigDecimal minimunBalance = new BigDecimal("10000.0");
 	
-	public Account createAccount(Account account) {
+	public ResponseEntity<ResponseStructure<Account>> createAccount(Account account) {
 		
 		//check id existence
 		if(account.getAccountId()!=null) {
@@ -67,7 +71,59 @@ public class AccountService {
 				.orElseThrow(()->new ResourceNotFoundException("Bank with ID " + account.getBank().getBankId() +" does not exist."));
 		account.setBank(existingBank);
 		
-		return accountRepository.save(account);
+		Account createdAccount = accountRepository.save(account);
+		
+		
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		res.setData(createdAccount);
+		res.setStatusCode(HttpStatus.CREATED.value());
+		res.setMessage("New Account Created Successfully.");
+		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<ResponseStructure<List<Account>>> getAllAccounts() {
+		List<Account> fetchedAccounts = accountRepository.findAll();
+		
+		if(fetchedAccounts.isEmpty()) {
+			throw new ResourceNotFoundException("No Accounts record present in DB.");
+		}
+		
+		ResponseStructure<List<Account>> res = new ResponseStructure<List<Account>>();
+		res.setData(fetchedAccounts);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("All accounts fetched successfully.");
+		
+		return new ResponseEntity<ResponseStructure<List<Account>>>(res, HttpStatus.OK);
+	}
+
+	public ResponseEntity<ResponseStructure<Account>> getAccountById(Integer accountId) {
+		
+		Account fetchedAccount = accountRepository.findById(accountId)
+				.orElseThrow(()->new ResourceNotFoundException("No account found with Id "+accountId));
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		res.setData(fetchedAccount);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Account with Id "+accountId+" fetched successfully.");
+		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.OK);
+	}
+
+	public ResponseEntity<ResponseStructure<Account>> deleteAccountById(Integer accountId) {
+		
+		Account fetchedAccount = accountRepository.findById(accountId)
+				.orElseThrow(()->new InvalidDataException("Account can't be deleted since account Id "+accountId+" is invalid"));
+		
+		accountRepository.delete(fetchedAccount);
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		res.setData(fetchedAccount);
+		res.setStatusCode(HttpStatus.ACCEPTED.value());
+		res.setMessage("Account with Id "+accountId+" deleted successfully.");
+		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.ACCEPTED);
 	}
 
 }
