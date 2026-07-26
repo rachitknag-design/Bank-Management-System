@@ -13,6 +13,7 @@ import com.bank_management_system.bank_project.entity.Account;
 import com.bank_management_system.bank_project.entity.AccountType;
 import com.bank_management_system.bank_project.entity.Bank;
 import com.bank_management_system.bank_project.exception.DuplicateResourceException;
+import com.bank_management_system.bank_project.exception.InsufficientBalanceException;
 import com.bank_management_system.bank_project.exception.InsufficientInitialBalanceException;
 import com.bank_management_system.bank_project.exception.InvalidDataException;
 import com.bank_management_system.bank_project.exception.ResourceNotFoundException;
@@ -123,6 +124,72 @@ public class AccountService {
 		res.setStatusCode(HttpStatus.ACCEPTED.value());
 		res.setMessage("Account with Id "+accountId+" deleted successfully.");
 		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.ACCEPTED);
+	}
+
+	public ResponseEntity<ResponseStructure<Account>> depositAmount(Integer accountId, BigDecimal amount) {
+		if(accountId==null) {
+			throw new InvalidDataException("Account Id must be provided to deposit Amount.");
+		}
+		BigDecimal min = new BigDecimal("1");
+		if(amount.compareTo(min)<0) {
+			throw new InvalidDataException("Unable to deposit amount since amount less than 1.");
+		}
+		
+		Account targetAccount = accountRepository.findById(accountId)
+				.orElseThrow(()-> new ResourceNotFoundException("Account with Account Id "+accountId+" doesn't exist."));
+		targetAccount.setBalance(targetAccount.getBalance().add(amount));
+		Account updatedAccount = accountRepository.save(targetAccount);
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		res.setData(updatedAccount);
+		res.setStatusCode(HttpStatus.ACCEPTED.value());
+		res.setMessage("Amount "+amount+" deposited to account with Id "+accountId+", avaliable balance : "+updatedAccount.getBalance());
+		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.ACCEPTED);
+	}
+
+	public ResponseEntity<ResponseStructure<Account>> withdrawAmount(Integer accountId, BigDecimal amount) {
+		
+		if(accountId==null) {
+			throw new InvalidDataException("Account Id must be provided to withdraw Amount.");
+		}
+		
+		if(amount==null) {
+			throw new InvalidDataException("Unable to withdraw since Withdraw amount can't be null");
+		}
+		
+		BigDecimal min = new BigDecimal("1");
+		
+		if(amount.compareTo(min)<0) {
+			throw new InvalidDataException("Unable to withdraw amount since amount entered is invalid (Enter Atleast 1.00)");
+		}
+		
+		Account targetAccount = accountRepository.findById(accountId)
+				.orElseThrow(()->new ResourceNotFoundException("Account with Account Id "+accountId+" doesn't exist." ));
+			
+		if(amount.compareTo(targetAccount.getBalance())>0) {
+			throw new InvalidDataException("Unable to withdraw amount since amount entered is more than avaliable balance.");
+		}
+		
+		BigDecimal remainingBalance = targetAccount.getBalance().subtract(amount);
+		
+		
+		if(targetAccount.getAccountType() == AccountType.CURRENT || targetAccount.getAccountType() == AccountType.SAVINGS) {
+			if(remainingBalance.compareTo(minimunBalance)<0) {
+				BigDecimal maxWithdrawable = targetAccount.getBalance().subtract(minimunBalance);
+				throw new InsufficientBalanceException("Unable to withdraw since remaining balance gets less than mimimum balance, maximum withdrawable amount: "+maxWithdrawable);
+			}
+		}
+		
+		targetAccount.setBalance(remainingBalance);
+		Account updatedAccount = accountRepository.save(targetAccount);
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		res.setData(updatedAccount);
+		res.setStatusCode(HttpStatus.ACCEPTED.value());
+		res.setMessage("Amount "+amount+" withdrawn from account with Id "+accountId+", available balance: "+updatedAccount.getBalance());
+
 		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.ACCEPTED);
 	}
 

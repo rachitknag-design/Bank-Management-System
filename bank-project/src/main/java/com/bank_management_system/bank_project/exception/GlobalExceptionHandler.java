@@ -67,4 +67,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return new ResponseEntity<ErrorResponse>(res, HttpStatus.BAD_REQUEST);
 	}
 	
+	@ExceptionHandler(InsufficientBalanceException.class)
+	public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(InsufficientBalanceException e) {
+		ErrorResponse res = new ErrorResponse();
+		
+		res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+		res.setMessage(e.getMessage());
+		
+		return new ResponseEntity<ErrorResponse>(res, HttpStatus.BAD_REQUEST);
+	}
+	
 }
