@@ -58,11 +58,17 @@ public class AccountController {
 		return accountService.depositAmount(accountId, amount);
 	}
 	
-	//7. Withdraw Amount
+	//7. Withdraw Amount "/api/account/withdraw/{accountId}?amount=value"
 	@PutMapping("/withdraw/{accountId}")
 	public ResponseEntity<ResponseStructure<Account>> withdrawAmount(@PathVariable Integer accountId, 
 																		@RequestParam BigDecimal amount) {
 		return accountService.withdrawAmount(accountId, amount);
+	}
+	
+	//8. Transfer Amount "/api/account/transfer?senderAccountId=value&recieverAccountId=value&amount=value"
+	@PutMapping("/transfer")
+	public ResponseEntity<ResponseStructure<Account>> transferAmount(@RequestParam Integer senderAccountId, @RequestParam Integer recieverAccountId, @RequestParam BigDecimal amount) {
+		return accountService.transferAmount(senderAccountId, recieverAccountId, amount);
 	}
 	
 	

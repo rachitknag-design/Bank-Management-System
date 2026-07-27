@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bank_management_system.bank_project.dto.ResponseStructure;
 import com.bank_management_system.bank_project.entity.Account;
@@ -191,6 +192,67 @@ public class AccountService {
 		res.setMessage("Amount "+amount+" withdrawn from account with Id "+accountId+", available balance: "+updatedAccount.getBalance());
 
 		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.ACCEPTED);
+	}
+
+	@Transactional
+	public ResponseEntity<ResponseStructure<Account>> transferAmount(Integer senderAccountId, Integer recieverAccountId,
+			BigDecimal amount) {
+		
+		if(senderAccountId==null) {
+			throw new InvalidDataException("Sender's Account Id must be provided to withdraw Amount.");
+		}
+		
+		if(recieverAccountId==null) {
+			throw new InvalidDataException("Reciever's Account Id must be provided to deposit Amount.");
+		}
+		
+		if(amount==null) {
+			throw new InvalidDataException("Unable to transer since amount can't be null");
+		}
+		
+		if(senderAccountId.equals(recieverAccountId)) {
+			throw new InvalidDataException("Unable to tranfer amount since sender and reciver can't be same.");
+		}
+		
+		BigDecimal min = new BigDecimal("1");
+		
+		if(amount.compareTo(min)<0) {
+			throw new InvalidDataException("Unable to withdraw amount since amount entered is invalid (Enter Atleast 1.00)");
+		}
+		
+		Account senderAccount = accountRepository.findById(senderAccountId)
+				.orElseThrow(()->new ResourceNotFoundException("Sender's Account Id doesn't exists: enter a valid AccountId"));
+		
+		Account recieverAccount = accountRepository.findById(recieverAccountId)
+				.orElseThrow(()->new ResourceNotFoundException("Reciever's Account Id doesn't exists: enter a valid AccountId"));
+		
+		if(senderAccount.getBalance().compareTo(amount)<0) {
+			throw new InsufficientBalanceException("Unable to tranfer amount since sender's doesn't have sufficient balance.");
+		}
+		
+		BigDecimal remainingBalance = senderAccount.getBalance().subtract(amount);
+		
+		if(senderAccount.getAccountType()==AccountType.CURRENT || senderAccount.getAccountType()==AccountType.SAVINGS) {
+			if(remainingBalance.compareTo(minimunBalance)<0) {
+				BigDecimal maxWithdrawable = senderAccount.getBalance().subtract(minimunBalance);
+				throw new InsufficientBalanceException("Unable to withdraw since sender's remaining balance gets less than mimimum balance, maximum withdrawable amount: "+maxWithdrawable);
+			}
+		}
+		
+		
+		senderAccount.setBalance(remainingBalance);
+		recieverAccount.setBalance(recieverAccount.getBalance().add(amount));
+		
+		accountRepository.save(senderAccount);
+		Account updatedRecieverAccount = accountRepository.save(recieverAccount);
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		
+		res.setData(updatedRecieverAccount);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Transferred "+amount+" successfully from Account ID "+senderAccountId +" to Account ID "+recieverAccountId+".");
+		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.OK);
 	}
 
 }
