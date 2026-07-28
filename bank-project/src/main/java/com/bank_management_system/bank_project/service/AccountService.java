@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bank_management_system.bank_project.dto.ResponseStructure;
+import com.bank_management_system.bank_project.dto.TransferBody;
 import com.bank_management_system.bank_project.entity.Account;
 import com.bank_management_system.bank_project.entity.AccountType;
 import com.bank_management_system.bank_project.entity.Bank;
@@ -207,7 +208,7 @@ public class AccountService {
 		}
 		
 		if(amount==null) {
-			throw new InvalidDataException("Unable to transer since amount can't be null");
+			throw new InvalidDataException("Unable to transfer since amount can't be null");
 		}
 		
 		if(senderAccountId.equals(recieverAccountId)) {
@@ -251,6 +252,69 @@ public class AccountService {
 		res.setData(updatedRecieverAccount);
 		res.setStatusCode(HttpStatus.OK.value());
 		res.setMessage("Transferred "+amount+" successfully from Account ID "+senderAccountId +" to Account ID "+recieverAccountId+".");
+		
+		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.OK);
+	}
+
+	@Transactional
+	public ResponseEntity<ResponseStructure<Account>> transferAmount1(TransferBody transferBody) {
+		
+		if (transferBody == null) {
+		    throw new InvalidDataException("Request body cannot be null.");
+		}
+		
+		if(transferBody.getSenderAccountId()==null) {
+			throw new InvalidDataException("Sender's Account Id must be provided to withdraw Amount.");
+		}
+		
+		if(transferBody.getReceiverAccountId()==null) {
+			throw new InvalidDataException("Reciever's Account Id must be provided to deposit Amount.");
+		}
+		
+		if(transferBody.getAmount()==null) {
+			throw new InvalidDataException("Unable to transer since amount can't be null");
+		}
+		
+		if(transferBody.getSenderAccountId().equals(transferBody.getReceiverAccountId())) {
+			throw new InvalidDataException("Unable to tranfer amount since sender and reciver can't be same.");
+		}
+		
+		BigDecimal min = new BigDecimal("1");
+		
+		if(transferBody.getAmount().compareTo(min)<0) {
+			throw new InvalidDataException("Unable to withdraw amount since amount entered is invalid (Enter Atleast 1.00)");
+		}
+		
+		Account senderAccount = accountRepository.findById(transferBody.getSenderAccountId())
+				.orElseThrow(()->new ResourceNotFoundException("Sender's Account Id doesn't exists: enter a valid AccountId"));
+		Account recieverAccount = accountRepository.findById(transferBody.getReceiverAccountId())
+				.orElseThrow(()->new ResourceNotFoundException("Reciever's Account Id doesn't exists: enter a valid AccountId"));
+		
+		if(senderAccount.getBalance().compareTo(transferBody.getAmount())<0) {
+			throw new InsufficientBalanceException("Unable to tranfer amount since sender's doesn't have sufficient balance.");
+		}
+		
+		BigDecimal remainingBalance = senderAccount.getBalance().subtract(transferBody.getAmount());
+		
+		if(senderAccount.getAccountType()==AccountType.CURRENT || senderAccount.getAccountType()==AccountType.SAVINGS) {
+			if(remainingBalance.compareTo(minimunBalance)<0) {
+				BigDecimal maxWithdrawable = senderAccount.getBalance().subtract(minimunBalance);
+				throw new InsufficientBalanceException("Unable to withdraw since sender's remaining balance gets less than mimimum balance, maximum withdrawable amount: "+maxWithdrawable);
+			}
+		}
+		
+		
+		senderAccount.setBalance(remainingBalance);
+		recieverAccount.setBalance(recieverAccount.getBalance().add(transferBody.getAmount()));
+		
+		accountRepository.save(senderAccount);
+		Account updatedRecieverAccount = accountRepository.save(recieverAccount);
+		
+		ResponseStructure<Account> res = new ResponseStructure<Account>();
+		
+		res.setData(updatedRecieverAccount);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Transferred "+transferBody.getAmount()+" successfully from Account ID "+transferBody.getSenderAccountId() +" to Account ID "+transferBody.getReceiverAccountId()+".");
 		
 		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.OK);
 	}

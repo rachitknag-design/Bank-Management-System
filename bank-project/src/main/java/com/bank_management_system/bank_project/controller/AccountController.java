@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.bank_management_system.bank_project.dto.ResponseStructure;
+import com.bank_management_system.bank_project.dto.TransferBody;
 import com.bank_management_system.bank_project.entity.Account;
 import com.bank_management_system.bank_project.service.AccountService;
 
@@ -69,6 +70,12 @@ public class AccountController {
 	@PutMapping("/transfer")
 	public ResponseEntity<ResponseStructure<Account>> transferAmount(@RequestParam Integer senderAccountId, @RequestParam Integer recieverAccountId, @RequestParam BigDecimal amount) {
 		return accountService.transferAmount(senderAccountId, recieverAccountId, amount);
+	}
+	
+	//8.1 Transfer Amount "/api/account/transfer" here we use TransferBody object to pass transfer details 
+	@PostMapping("/transfer")
+	public ResponseEntity<ResponseStructure<Account>> transferAmount1(@RequestBody TransferBody transferBody) {
+		return accountService.transferAmount1(transferBody);
 	}
 	
 	
