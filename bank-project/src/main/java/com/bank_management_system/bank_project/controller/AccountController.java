@@ -78,5 +78,11 @@ public class AccountController {
 		return accountService.transferAmount1(transferBody);
 	}
 	
+	//9. Get Account by Bank
+	@GetMapping("/bank")
+	public ResponseEntity<ResponseStructure<List<Account>>> getAccountByBank(@RequestParam Integer bankId) {
+		return accountService.getAccountByBank(bankId);
+	}
+	
 	
 }

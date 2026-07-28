@@ -319,4 +319,26 @@ public class AccountService {
 		return new ResponseEntity<ResponseStructure<Account>>(res, HttpStatus.OK);
 	}
 
+	public ResponseEntity<ResponseStructure<List<Account>>> getAccountByBank(Integer bankId) {
+		if(bankId==null) {
+			throw new InvalidDataException("Request Param cannot be null.");
+		}
+		
+		bankRepository.findById(bankId)
+		.orElseThrow(()->new ResourceNotFoundException("No Bank found with Id "+bankId+"."));
+		
+		List<Account> fetchedAccounts = accountRepository.findByBank_BankId(bankId);
+		
+		if(fetchedAccounts.isEmpty()) {
+			throw new ResourceNotFoundException("No account present in this bank.");
+		}
+		
+		ResponseStructure<List<Account>> res = new ResponseStructure<List<Account>>();
+		res.setData(fetchedAccounts);
+		res.setStatusCode(HttpStatus.ACCEPTED.value());
+		res.setMessage("Fetched all account's with bankId "+bankId+".");
+		
+		return new ResponseEntity<ResponseStructure<List<Account>>>(res, HttpStatus.ACCEPTED);
+	}
+
 }
