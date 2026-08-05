@@ -1,5 +1,6 @@
 package com.bank_management_system.bank_project.service;
 import com.bank_management_system.bank_project.dto.ResponseStructure;
+import com.bank_management_system.bank_project.entity.Address;
 import com.bank_management_system.bank_project.entity.Bank;
 import com.bank_management_system.bank_project.exception.DuplicateResourceException;
 import com.bank_management_system.bank_project.exception.InvalidDataException;
@@ -7,6 +8,7 @@ import com.bank_management_system.bank_project.exception.ResourceNotFoundExcepti
 import com.bank_management_system.bank_project.repository.BankRepository;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -152,17 +154,64 @@ public class BankService {
 		
 		return new ResponseEntity<ResponseStructure<Bank>>(res, HttpStatus.OK);
 	}
+	
+	public ResponseEntity<ResponseStructure<Bank>> updateBankRecord(Bank bank) {
+		
+		//Case 1 : check for id if not provide in JSON object
+		if(bank.getBankId()==null) {
+			throw new InvalidDataException("Unable to update since Bank Id is not provided.");
+		}
+	
+		//Case 2 : check for weather the pass Id in JSON object is existing in DB
+		Bank existingBank = bankRepository.findById(bank.getBankId())
+				.orElseThrow(()->new ResourceNotFoundException("No Bank exists with provided ID."));
+		
+		if(bank.getBankName()!=null) {
+			existingBank.setBankName(bank.getBankName());
+		}
+		if(bank.getIfsc()!=null) {
+			existingBank.setIfsc(bank.getIfsc());
+		}
+		if(bank.getBranchName()!=null) {
+			existingBank.setBranchName(bank.getBranchName());
+		}
+		if(bank.getContactNo()!=null) {
+			existingBank.setContactNo(bank.getContactNo());
+		}
+		if(bank.getAddress()!=null) {
+			if(existingBank.getAddress()!=null) {
+				Address existingAddress = existingBank.getAddress();
+				Address newAddress = bank.getAddress();
+				
+				if(newAddress.getStreet()!=null) {existingAddress.setStreet(newAddress.getStreet());}
+				if(newAddress.getCity()!=null) {existingAddress.setCity(newAddress.getCity());}
+				if(newAddress.getState()!=null) {existingAddress.setState(newAddress.getState());}
+				if(newAddress.getPincode()!=null) {existingAddress.setPincode(newAddress.getPincode());}				
+			} else {
+				existingBank.setAddress(bank.getAddress());
+			}
+		}
+		
+		//Case 3 : Id is passed and is Id is valid -> updating the Bank record 
+		Bank updatedBank = bankRepository.save(bank);
+		
+		ResponseStructure<Bank> res = new ResponseStructure<Bank>();
+		
+		res.setData(updatedBank);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Bank record with id "+bank.getBankId()+" updated successfully.");
+		
+		return new ResponseEntity<ResponseStructure<Bank>>(res,HttpStatus.OK);
+
+	}
 
 
-//	public Bank updateBankRecord(Bank bank) {
+//	public ResponseEntity<ResponseStructure<Bank>> updateBankRecord1(Map<String, Object> map) {
+//		Bank updateBank = new Bank();
 //		
-//		if(bank.getBankId()==null) {
-//			throw new InvalidDataException("Id must be present to update bank record.");
+//		for(Map.Entry<String, Object> entry : map.entrySet()) {
+//			
 //		}
-//		
-//		bankRepository.findById(bank.getBankId())
-//		.orElseThrow(()->new ResourceNotFoundException("bank record with id "+bank.getBankName()+" doesn't exists."));
-//		
-//		return bankRepository.save(bank);
 //	}
+	
 }

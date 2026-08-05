@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bank_management_system.bank_project.dto.ResponseStructure;
 import com.bank_management_system.bank_project.dto.TransferBody;
 import com.bank_management_system.bank_project.entity.Account;
+import com.bank_management_system.bank_project.entity.AccountType;
 import com.bank_management_system.bank_project.service.AccountService;
 
 @RestController
@@ -84,5 +85,31 @@ public class AccountController {
 		return accountService.getAccountByBank(bankId);
 	}
 	
+	//10. Get Account By Type
+	@GetMapping("/type")
+	public ResponseEntity<ResponseStructure<List<Account>>> getAccountByType(@RequestParam AccountType accountType) {
+		return accountService.getAccountByType(accountType);
+	}
+	
+	
+	//11. Get Accounts with Balance Greater than a Value
+	@GetMapping("/greater")
+	public ResponseEntity<ResponseStructure<List<Account>>> getAccountBalanceGreaterThanValue(@RequestParam BigDecimal value) {
+		return accountService.getAccountBalanceGreaterThanValue(value);
+	}
+	
+	//12. Get account By Pagination & Sorting
+	
+	
+	
 	
 }
+
+
+
+
+
+
+
+
+

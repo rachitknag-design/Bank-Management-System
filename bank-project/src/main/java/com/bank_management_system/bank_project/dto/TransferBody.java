@@ -2,7 +2,6 @@ package com.bank_management_system.bank_project.dto;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
 
 public class TransferBody {
 	

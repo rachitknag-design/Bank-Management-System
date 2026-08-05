@@ -341,4 +341,57 @@ public class AccountService {
 		return new ResponseEntity<ResponseStructure<List<Account>>>(res, HttpStatus.ACCEPTED);
 	}
 
+	public ResponseEntity<ResponseStructure<List<Account>>> getAccountByType(AccountType accountType) {
+		
+		if(accountType==null) {
+			throw new InvalidDataException("Request param accountType can't be null to search.");
+		}
+		
+		List<Account> fetchedAccounts = accountRepository.findByAccountType(accountType);
+		
+		if(fetchedAccounts.isEmpty()) {
+			throw new ResourceNotFoundException("No account present of type: "+accountType+".");
+		}
+		
+		ResponseStructure<List<Account>> res = new ResponseStructure<List<Account>>();
+		res.setData(fetchedAccounts);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("Accounts of type "+accountType+" fetched successfully.");
+		
+		return new ResponseEntity<ResponseStructure<List<Account>>>(res, HttpStatus.OK);
+	}
+
+	public ResponseEntity<ResponseStructure<List<Account>>> getAccountBalanceGreaterThanValue(BigDecimal value) {
+		
+		if(value==null) {
+			throw new InvalidDataException("Request param value can't be null.");
+		}
+		
+		BigDecimal min = new BigDecimal("1");
+		
+		if(value.compareTo(min)<0) {
+			throw new InvalidDataException("Unable to search accounts for balance since value passed is invalid.");
+		}
+		
+		List<Account> fetchedAccounts = accountRepository.findByBalanceWithValue(value);
+		
+		if(fetchedAccounts.isEmpty()) {
+			throw new ResourceNotFoundException("No Accounts found with balance greater than value "+value+".");
+		}
+		
+		ResponseStructure<List<Account>> res = new ResponseStructure<List<Account>>();
+		res.setData(fetchedAccounts);
+		res.setStatusCode(HttpStatus.OK.value());
+		res.setMessage("All accounts with balance greater than "+value+" fetched successfully.");
+		
+		return new ResponseEntity<ResponseStructure<List<Account>>>(res, HttpStatus.OK);
+	}
+
 }
+
+
+
+
+
+
+

@@ -1,13 +1,16 @@
 package com.bank_management_system.bank_project.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,17 +51,17 @@ public class BankController {
 	}
 	
 	//5.1 Update Bank -> PutMapping
-//	@PutMapping("/update")
-//	public ResponseEntity<ResponseStructure<Bank>> updateBankById(@RequestBody Bank bank) {
-//		Bank updatedBank = bankService.updateBankRecord(bank);
-//		
-//		ResponseStructure<Bank> res = new ResponseStructure<Bank>();
-//		res.setData(updatedBank);
-//		res.setStatusCode(HttpStatus.ACCEPTED.value());
-//		res.setMessage("Bank record with id "+bank.getBankId()+" updated successfully.");
-//		
-//		return new ResponseEntity<ResponseStructure<Bank>>(res,HttpStatus.ACCEPTED);
+	@PutMapping("/update")
+	public ResponseEntity<ResponseStructure<Bank>> updateBankRecord(@RequestBody Bank bank) {
+		return bankService.updateBankRecord(bank);
+	}
+	
+	//5.2 Update Bank -> PatchMapping
+//	@PatchMapping("/update")
+//	public ResponseEntity<ResponseStructure<Bank>> updateBankRecord(@RequestBody Map<String,Object> map) {
+//		return bankService.upadateBankRecord1(map);
 //	}
+	
 	
 	//7. Get By IFSC
 	@GetMapping("/ifsc/{ifsc}")
